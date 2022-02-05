@@ -1,0 +1,23 @@
+    * {
+        font-family: 'Bebas Neue', cursive;
+        font-family: 'Oswald', sans-serif;
+    }
+    
+    .bgimg {
+        background-image: url('../image/backgroundimg.jpg');
+        height: auto;
+    }
+    
+    section {
+        padding: 60px 0px;
+    }
+    
+    .container {
+        width: 1150px;
+        margin: auto;
+        height: auto;
+    }
+    
+    .img {
+        background-color: #92a8d1;
+    }
