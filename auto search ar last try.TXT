@@ -1,0 +1,147 @@
+dhaka.html
+
+html ar vitor add javascript===
+
+<!--for auto search last javascript-->
+  <script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css" />
+
+
+
+body ar por======
+
+<!--auto search ar last try-->
+  <div class="container">
+  
+    <div id="autocomplete" class="autocomplete">
+      <input class="autocomplete-input" />
+      <ul class="autocomplete-result-list"></ul>
+    </div>
+   
+   </div>
+
+   <script>
+
+     new Autocomplete('#autocomplete', {
+
+       search:input=>{
+         console.log(input)
+
+         const url= '/get_names/?search=${input}'
+
+         return new Promise(resolve => {
+           fetch(url)
+           .then (response =>response.json())
+           .then (data =>{
+
+             console.log(data.payload)
+             resolve(data.payload)
+
+           })
+
+         })
+
+       },
+
+       renderResult: (result, propes) =>{
+         console.log(props)
+
+         let group=''
+
+         if(result.dhaka % 3 == 0){
+           group='<li class="group">Group</li>'
+         }
+
+
+         return '
+         ${group}
+         <li ${props}>
+
+           <div class="wiki-title">
+             ${result.name}
+           </div>
+
+          </li>
+         '
+       }
+
+     })
+
+   </script>
+<!--end-->
+
+
+
+<!--views.py ar vitor-->
+
+#search location API
+
+def get_names(request):
+    search=request.GET.get('search')
+    payload=[]
+    if search:
+     objs=Location.objects.filter(name__startswith=search)
+    
+
+    for obj in objs:
+        payload.append({
+            'name':obj.name
+        })
+
+
+    return JsonResponse({
+        'status':True,
+        'payload':payload
+    })
+<!--end-->
+
+<!--urls.py-->
+
+#location 
+    path('get_names/', get_names),
+
+
+
+#model,form,seed.py , admin agular code oi khan a ase
+
+
+<!--models.py-->
+
+#Auto search for location last try
+
+class Location(models.Model):
+   name = models.CharField(max_length=100)
+
+   def __str__(self) -> str:
+       return self.name
+
+
+
+<!--admin.py-->
+
+
+#auto Location model try
+from .models import Location
+@admin.register(Location)
+class Locationreg(admin.ModelAdmin):
+    list_display=()
+
+
+
+<!--seed.py-->
+
+
+from .models import Location
+
+from faker import Faker
+fake = Faker()
+
+def seed_db(n):
+    for i in range(0,n):
+
+        Location.objects.create(
+            name = fake.name()
+        )
+
+
+
