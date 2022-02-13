@@ -293,55 +293,96 @@ label:hover ~ input:checked ~ label{
 
 
 
-<!--try by houserate model rating and review-->
-<!-- Product Review -->
-<!-- Reviews -->
-<div class="col-md-6">
-  <h3 class="my-3">Reviews - 4.5/5 <i class="fa fa-star text-warning"></i>
-    <button data-toggle="modal" data-target="#houserate" type="button" class="btn btn-warning btn-sm float-right reviewBtn">Add Review</button>
+<!--map ar jonno-->
 
+<div class="container">
+  <div class="row">
 
-    <!-- Modal -->
-<div class="modal fade" id="houserate" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Review and Rating add</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="col shadow">
+            
+  <div class="nav-wrap">
+      <div class="logo">
+         <h1><i class="fa-solid fa-map-location-dot"></i>Google Map for Area Search</h1>
+         
       </div>
-      <div class="modal-body">
-
-        <form method="post" action="{% url 'save' fe.id %}" id="addForm">  <!--data.id-->
-          {% csrf_token %}
-
-        <table class="table table-bordered">
-
-        {{ratevariable.as_table}}
-
-        <tr>
-          <td colspan="2">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </td> 
-        </tr>
-
-        </table>
-
-        <p class="ajaxRes"></p>
-
-      </form>
-
-      </div>
-      
-    </div>
+  <div class="menu">
+     <ul>
+      <li>
+     <button type="submit" class="btn btn-danger btn-lg"> <a href="{% url 'rental' %}">Search Google Map</a></button>
+      </li>
+      </ul>
   </div>
+            
 </div>
-<!--end modal-->
- 
-  </h3>
 </div>
+</div>
+
+
+
+
+<!--try success to fetch rating reviews objects===details..ok-->
+<h1>houserate thyk review o rate ani</h1>
+
+      {% for dd in d %}
  
+
+    <table>
+        <tr>
+          <th>{{dd.info_review}}</th>
+          <th>{{dd.info_rate}}</th>
+          <th>{{dd.infor_id.houserent}}</th>
+        </tr>
+        <tr>
+          <td>{{dd.infor_id.housename}}</td>
+          <td>{{dd.infor_id.division}}</td>
+          <td>{{dd.infor_id.area}}</td>
+        </tr>
+        <tr>
+          <td>Centro comercial Moctezuma</td>
+          <td>Francisco Chang</td>
+          <td>Mexico</td>
+        </tr>
+      </table>
+      {% endfor %}
+
+
+
+      <div class="container">
+        <div class="row"> 
+        <div class="col-md-12">  
+        
+        
+        
+        {% for dd in d %}
+        
+        <div class="col-md-4">
+        <div class="card mt-5">
+        <div class="card-body ">
+          
+            <div class="category-image" >
+            <img src="{{ dd.infor_id.img.url }}" alt="Category image" class="image-responsive rounded" width="100%" > 
+            </div>
+            
+            <h2 class="card-title text-center border">House Name:  {{dd.infor_id.housename}} </h2>
+            <h3 class="card-text text-center">House Rent: {{dd.infor_id.houserent}} </h3>
+        
+            
+            <div class="d-flex justify-content-center links">
+             <a href="/dhaka" class="btn btn-primary ml-2">Details</a> <!--fee.pk use kora hoy just info page a jabar jonno-->
+            </div>
+        
+        </div>
+        </div>
+        </div>
+        
+        {% endfor %}
+        
+        
+            
+        </div>
+        </div>
+        </div> 
+
 
 
 
