@@ -1,6 +1,12 @@
+import folium
+import geocoder
+import json
+
 from urllib import request
 from django.http.response import HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
+
+
 
 # Create your views here.
 from django.http import HttpResponse
@@ -26,6 +32,15 @@ from .forms import OwnerformReg
 
 from .models import houserate
 from .forms import houserateform
+
+from .models import measurement
+from .forms import mapform
+
+from .models import map
+from .forms import mapformagain
+
+from .models import Location
+from django.http import JsonResponse
 
 from django.contrib import messages
 
@@ -147,45 +162,80 @@ def houseform(request):
 
 
 def rental(request):
+
+    #address=request.POST.get('address')
+
+    if request.method=='POST':
+        form=mapformagain(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('/rental')
+    else:
+        form=mapformagain()
+
+
+    #geocoder code
+    address=map.objects.all().last()
+
+    location=geocoder.osm(address)
+    lat=location.lat
+    lng=location.lng
+    country=location.country
+
+    #correct area na dily data ty add hobe na
+    if lat == None or lng == None:
+        address.delete()
+        return HttpResponse('Your location input is invalid')
+
+
+
+    #create map
+    m=folium.Map(location=[19, -12], zoom_start=2)
+
+  
+
+    folium.Marker([lat, lng], tooltip='click for more', popup=country).add_to(m)
+
+    m=m._repr_html_()
+    context={
+        'm':m,
+        'form':form,
+    }
         
 
-    return render(request, 'rental.html')
+    return render(request, 'rental.html', context)
 
 
-def tes(request):                #test korar jonno create views and urls
+def tes(request):               #test korar jonno create views and urls
+
+    
+
     a=Ownerform.objects.all()# test koraer jonno
     b=ownerformfill.objects.all()
     c=Userform.objects.all()
-   
-   
+
+    d=houserate.objects.all()
+
+    if 'q' in request.GET:
+        q=request.GET['q']
+        data= houserate.objects.filter(info_rate__icontains=q)
+
+    
     context={
         'a':a,
         'b':b,
         'c':c,
+        'd':d,
+       
+
+        
         
     }                #test sob end, hoy nai result
 
     return render(request, 'tes.html', context ) 
 
 
-def t(request, pk):
-     url = request.META.get('HTTP_REFERER')
-      
-     if request.method =='POST':
-         form=rreg(request.POST)
-         
-         if form.is_valid():
-             data=r()
-             data.reeview=form.cleaned_data['reeview']
-             data.main_id=pk
-             data.save()
-             messages.success(request,"ok vai")
-             return HttpResponseRedirect(url)
-     #return HttpResponseRedirect(url)  
-    # return render(request, 't.html')       
-
-
-    
 
 def owner(request):
     
@@ -213,12 +263,9 @@ def search(request):
         data= ownerformfill.objects.all()
 
 
-    de=houserate.objects.get() 
-
 
     context={
-        'data':data,
-        'de':de
+        'data':data
     }    
 
     return render(request, 'search.html', context)    
@@ -360,14 +407,34 @@ def imgall(request):
     
     return render(request, 'imgall.html')
 
- 
+
+
+
+#search auto add
+def auto(request):
+    if request.is_ajax():
+       q = request.GET.get('term', '')
+       products = ownerformfill.objects.filter(division__icontains=q)
+       results = []
+       for rs in products:
+        product_json = {}
+        product_json = rs.division 
+        results.append(product_json)
+        data = json.dumps(results)
+    else:
+      data = 'fail'
+      mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+
 #dhaka r image fetch
 def dhaka(request):
 
     fe=ownerformfill.objects.all()  #filter or all same e ase
-
-    
-    context={'fe':fe}
+ 
+    context={'fe':fe,
+              
+              }
 
     return render(request, 'dhaka.html', context)
 
@@ -393,11 +460,21 @@ def info(request, pk):   #pk mane database ar primary key dekhabe just
     #average rating  create
     avg_reviewfetch=houserate.objects.filter(infor_id=fe).aggregate(avg_rate=Avg('info_rate'))
 
+
+    #success to fetch rating reviews objects===details..ok
+    d=houserate.objects.all()
+
+
+    
+
     context={'fe':fe,
               'ratevariable':ratevariable,
               'canAdd':canAdd,
               'reviewfetch':reviewfetch,
-              'avg_reviewfetch':avg_reviewfetch
+              'avg_reviewfetch':avg_reviewfetch,
+
+              'd':d       #try success
+             
               }
 
     
@@ -408,7 +485,7 @@ def info(request, pk):   #pk mane database ar primary key dekhabe just
 
 
 
-#rate and review url
+#rate and review url...ok
 def save(request, pid):
     projuct=ownerformfill.objects.get(pk=pid)
     reve=houserate.objects.create(
@@ -428,29 +505,22 @@ def save(request, pid):
 
     
 
-    return JsonResponse({'bool':True, 'data':data, 'avg_reviewfetch':avg_reviewfetch})
-    
-    
-     
+    #return JsonResponse({'bool':True, 'data':data, 'avg_reviewfetch':avg_reviewfetch})   #ai line code dily o right ..but success ar jjonno reviewok page create
+
+    return HttpResponseRedirect('/reviewok')
 
 
-#search location API
 
-def get_location(request):
+def reviewok(request):
+     return render(request, 'reviewok.html')   #only success ar jonno create kora review and rating k
+
+
+   
     
-    search = request.GET.get('search')
-    payload = []
-    if search:
-        places =ownerformfill.objects.filter(title_)
-        print(request.GET)
-        for plc in places:
-            payload.append(
-                {'location': plc.loc}
-            )
-    return JsonResponse({
-        'status' : True,
-        'payload' : payload
-    })
+
+
+    
+    
  
   
            
